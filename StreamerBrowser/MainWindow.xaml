@@ -1,0 +1,25 @@
+﻿<Window x:Class="StreamerBrowser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StreamerBrowser"
+        mc:Ignorable="d"
+        Title="Streamer Browser" Height="96" Width="800"
+        Name ="MenuWindow">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="1" Name="MenuBar" IsMainMenu="True" Margin="836,824,-836,-797">
+            <Menu Name ="FileMenu">
+                ファイル
+            </Menu>
+            <Menu Name ="EditMenu">
+                編集
+            </Menu>
+
+        </Menu>
+    </Grid>
+</Window>
