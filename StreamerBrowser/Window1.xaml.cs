@@ -22,7 +22,7 @@ namespace StreamerBrowser
         public BrowserWindow()
         {
             InitializeComponent();
-            Browser.Source = new Uri("https://www.youtube.com/");
+            Browser.Source = new Uri("https://www.youtube.com/"); 
         }
     }
 }
