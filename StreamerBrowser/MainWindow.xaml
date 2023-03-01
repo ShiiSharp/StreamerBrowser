@@ -5,21 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StreamerBrowser"
         mc:Ignorable="d"
+        Loaded="MenuWindow_Loaded"  
+        LocationChanged="MenuWindow_LocationChanged"    
+        Closing="MenuWindow_Closing"
         Title="Streamer Browser" Height="96" Width="800"
-        Name ="MenuWindow">
+        Name ="MenuWindow"
+        ResizeMode="NoResize"
+        >
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="16*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="1" Name="MenuBar" IsMainMenu="True" Margin="836,824,-836,-797">
-            <Menu Name ="FileMenu">
-                ファイル
+        <DockPanel>
+            <Menu Grid.Row="0" Name="MenuBar" IsMainMenu="True" Margin="0,0,0,53" Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
+                <Menu Name ="FileMenu">
+                    ファイル
+                </Menu>
+                <Menu Name ="EditMenu">
+                    編集
+                </Menu>
             </Menu>
-            <Menu Name ="EditMenu">
-                編集
-            </Menu>
-
-        </Menu>
+        </DockPanel>
+        <Button x:Name="ButtonGoBack" Content="＜" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoBack_Click"/>
+        <Button x:Name="ButtonGoForward" Grid.Column="1" Content="＞" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoForward_Click"/>
+        <Button x:Name="buttonReload" Grid.Column="2" Content="〇" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoForward_Click"/>
+        <TextBox x:Name="TextBoxUri" Grid.Column="3" Margin="2,2,2,2" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" TextAlignment="Left" VerticalContentAlignment="Center" KeyDown="TextBoxUri_KeyDown" />
     </Grid>
 </Window>

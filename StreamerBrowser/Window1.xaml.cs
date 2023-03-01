@@ -19,10 +19,73 @@ namespace StreamerBrowser
     /// </summary>
     public partial class BrowserWindow : Window
     {
+        public List<String> NGWords { get; set; } = new List<string>();
+
         public BrowserWindow()
         {
             InitializeComponent();
-            Browser.Source = new Uri("https://www.youtube.com/"); 
+        }
+
+        public Uri GoBack()
+        {
+            if (Browser.CanGoBack) Browser.GoBack();
+            return Browser.Source; 
+        }
+
+        public Uri GoForward()
+        {
+            if (Browser.CanGoForward) Browser.GoForward();
+            return Browser.Source;
+        }
+
+        public Uri Go(String uriString)
+        {
+            Browser.Visibility = Visibility.Hidden;
+            if (Browser.CoreWebView2 == null)
+            {
+                Browser.Source = new Uri(uriString);
+            }
+            else
+            {
+                Browser.CoreWebView2.Navigate(uriString);
+            }
+            while (!Browser.IsLoaded)
+            {
+                System.Threading.Thread.Sleep(100);
+            }
+            return Browser.Source;
+        }
+
+        public Uri Reload()
+        {
+            Browser.Reload();
+            return Browser.Source;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void Browser_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        {
+            Console.WriteLine("NavigationCompleted!");
+            if (Browser.CoreWebView2!=null)
+            {
+                var outerHTML = await Browser.CoreWebView2.ExecuteScriptAsync("document.body.outerHTML");
+                var hasNGWord = NGWords.Any(s => outerHTML.Contains(s));
+                if (hasNGWord) 
+                {
+                    Browser.Visibility = Visibility.Hidden;
+                    return; 
+                }
+            }
+            Browser.Visibility=Visibility.Visible;
+        }
+
+        private void Browser_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        {
+            Browser.Visibility = Visibility.Hidden;
         }
     }
 }
