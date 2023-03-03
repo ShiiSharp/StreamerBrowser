@@ -85,5 +85,10 @@ namespace StreamerBrowser
             TextBoxUri.Text = "https://www.yahoo.co.jp/";
             BrowserWindow.Go(TextBoxUri.Text);
         }
+
+        private void ButtonDisableBlur_Click(object sender, RoutedEventArgs e)
+        {
+            BrowserWindow.ChangeBrowserBlur(0, 1);
+        }
     }
 }

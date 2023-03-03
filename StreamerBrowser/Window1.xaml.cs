@@ -40,7 +40,7 @@ namespace StreamerBrowser
 
         public Uri Go(String uriString)
         {
-            Browser.Visibility = Visibility.Hidden;
+            ChangeBrowserBlur(16);
             if (Browser.CoreWebView2 == null)
             {
                 Browser.Source = new Uri(uriString);
@@ -76,16 +76,33 @@ namespace StreamerBrowser
                 var hasNGWord = NGWords.Any(s => outerHTML.Contains(s));
                 if (hasNGWord) 
                 {
-                    Browser.Visibility = Visibility.Hidden;
+                    ChangeBrowserBlur(16);
                     return; 
                 }
             }
-            Browser.Visibility=Visibility.Visible;
+            ChangeBrowserBlur(0);
         }
 
         private void Browser_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
         {
-            Browser.Visibility = Visibility.Hidden;
+            ChangeBrowserBlur(16, .25); 
+        }
+
+        public void ChangeBrowserBlur(Int32 radius, double zoomFactor = 1.0)
+        {
+            if (Browser.CoreWebView2!!=null)
+            {
+                var script = $"document.body.style.filter='blur({radius}px)';";
+                Browser.CoreWebView2.ExecuteScriptAsync(script);
+            }
+            if (radius == 0)
+            {
+                Browser.ZoomFactor = zoomFactor;
+            } 
+            else
+            {
+                Browser.ZoomFactor = zoomFactor;
+            }
         }
     }
 }

@@ -18,13 +18,14 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="16*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <DockPanel>
-            <Menu Grid.Row="0" Name="MenuBar" IsMainMenu="True" Margin="0,0,0,53" Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
+        <DockPanel Grid.Column="0">
+            <Menu Name="MenuBar" IsMainMenu="True" Margin="0,0,0,53" Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
                 <Menu Name ="FileMenu">
                     ファイル
                 </Menu>
@@ -33,9 +34,10 @@
                 </Menu>
             </Menu>
         </DockPanel>
-        <Button x:Name="ButtonGoBack" Content="＜" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoBack_Click"/>
-        <Button x:Name="ButtonGoForward" Grid.Column="1" Content="＞" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoForward_Click"/>
-        <Button x:Name="buttonReload" Grid.Column="2" Content="〇" Margin="0,0,0,0" Grid.Row="1" Click="ButtonGoForward_Click"/>
+        <Button x:Name="ButtonGoBack" Content="🔙" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoBack_Click"/>
+        <Button x:Name="ButtonGoForward" Grid.Column="1" Content="🔜" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
+        <Button x:Name="buttonReload" Grid.Column="2" Content="↻" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
         <TextBox x:Name="TextBoxUri" Grid.Column="3" Margin="2,2,2,2" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" TextAlignment="Left" VerticalContentAlignment="Center" KeyDown="TextBoxUri_KeyDown" />
+        <Button x:Name="ButtonDisableBlur" Content="D" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonDisableBlur_Click" />
     </Grid>
 </Window>
