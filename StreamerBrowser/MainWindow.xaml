@@ -24,14 +24,16 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.Column="0">
-            <Menu Name="MenuBar" IsMainMenu="True" Margin="0,0,0,53" Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
-                <Menu Name ="FileMenu">
-                    ファイル
-                </Menu>
-                <Menu Name ="EditMenu">
-                    編集
-                </Menu>
+        <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5">
+            <Menu Height="12pt" Name="MenuBar" IsMainMenu="True" Margin="0,0,0,0" Grid.ColumnSpan="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
+                <MenuItem Name ="FileMenu" Header="ファイル">
+                    <MenuItem Name="NGWordEdit" Click="NGWordEdit_Click" Header="NGワード設定"/>
+                </MenuItem>
+                <MenuItem Name ="EditMenu" Header="編集" >
+                </MenuItem>
+                <MenuItem Name="BookMarkMenu" Header="ブックマーク" DataContext="{Binding PageTitle}">
+                    <MenuItem Name="BookMarkEdit" Header="ブックマーク編集" Click="BookMarkEdit_Click"/>
+                </MenuItem>
             </Menu>
         </DockPanel>
         <Button x:Name="ButtonGoBack" Content="🔙" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoBack_Click"/>

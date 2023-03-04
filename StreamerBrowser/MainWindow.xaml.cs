@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace StreamerBrowser
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
         String NGWord = "岸田";
         private BrowserWindow BrowserWindow;
         public MainWindow()
@@ -30,6 +32,7 @@ namespace StreamerBrowser
             BrowserWindow.Height = this.Width * 3 / 4;
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
+            //BookMarkMenu.ItemsSource = bookMarkItems;
         }
 
         private void ButtonGoBack_Click(object sender, RoutedEventArgs e)
@@ -90,5 +93,48 @@ namespace StreamerBrowser
         {
             BrowserWindow.ChangeBrowserBlur(0, 1);
         }
+
+        private void NGWordEdit_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void NGWordEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var NGWordEdit = new NGWordEditor(NGWord.Split(' ').ToList());
+            var dialogResult = NGWordEdit.ShowDialog();
+            if (dialogResult == true)
+            {
+                NGWord = String.Concat(NGWordEdit.NGWordDB.Select(s => $"{s} "));
+            }
+            BrowserWindow.NGWords = NGWordEdit.NGWordDB;
+            foreach (var NGWord in NGWordEdit.NGWordDB)
+                System.Diagnostics.Debug.Print(NGWord);
+        }
+
+        private void BookMarkEdit_Click(object sender, RoutedEventArgs e)
+        {
+            var BoorkmarkEditor = new BookmarkEditor();
+            var dialogResult = BoorkmarkEditor.ShowDialog();
+            if (dialogResult==true)
+            {
+                bookMarkItems.Clear();
+                
+
+            }
+
+        }
+    }
+
+    struct NGWord
+    {
+        public string Word; 
+    };
+
+    public class BookMarkItem
+    {
+        public string Url { get; set; } = "";
+        public string PageTitle { get; set; } = "";
+        public string FaviconUrl { get; set; } = "";
     }
 }

@@ -1,0 +1,23 @@
+﻿<Window x:Class="StreamerBrowser.BookmarkItemAdd"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StreamerBrowser"
+        mc:Ignorable="d"
+        Title="ブックマーク" Height="80" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <TextBox Name="TextBoxUri" Margin="4,4,4,4" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0"/>
+        <Button Name="OkButton" Margin="4,4,4,4" Content="OK" Width="Auto" Grid.Column="1" Grid.Row="1" Click="OkButton_Click"/>
+        <Button Name="CancelButton" Margin="4,4,4,4" Content="キャンセル" Width="Auto" Grid.Column="2" Grid.Row="1" Click="CancelButton_Click" />
+    </Grid>
+</Window>
