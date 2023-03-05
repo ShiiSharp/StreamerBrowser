@@ -24,6 +24,7 @@ namespace StreamerBrowser
         private ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
         String NGWord = "岸田";
         private BrowserWindow BrowserWindow;
+        private BookMarkSwitch bookMarkSwitch;
         public MainWindow()
         {
             InitializeComponent();
@@ -32,6 +33,12 @@ namespace StreamerBrowser
             BrowserWindow.Height = this.Width * 3 / 4;
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
+
+            bookMarkSwitch = new BookMarkSwitch(bookMarkItems, BrowserWindow);
+            bookMarkSwitch.Height = BrowserWindow.Height;
+            bookMarkSwitch.Top = BrowserWindow.Top;
+            bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
+            bookMarkSwitch.Show();
             //BookMarkMenu.ItemsSource = bookMarkItems;
         }
 
@@ -75,6 +82,9 @@ namespace StreamerBrowser
         {
             BrowserWindow.Left = this.Left;
             BrowserWindow.Top = this.Top + this.Height;
+            bookMarkSwitch.Height = BrowserWindow.Height;
+            bookMarkSwitch.Top = BrowserWindow.Top;
+            bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
         }
 
         private void MenuWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -114,12 +124,15 @@ namespace StreamerBrowser
 
         private void BookMarkEdit_Click(object sender, RoutedEventArgs e)
         {
-            var BoorkmarkEditor = new BookmarkEditor();
-            var dialogResult = BoorkmarkEditor.ShowDialog();
+            var boorkmarkEditor = new BookmarkEditor(bookMarkItems);
+            var dialogResult = boorkmarkEditor.ShowDialog();
             if (dialogResult==true)
             {
                 bookMarkItems.Clear();
-                
+                foreach(var bookMarkItem in boorkmarkEditor.bookMarkItems)
+                {
+                    bookMarkItems.Add(bookMarkItem);
+                }
 
             }
 

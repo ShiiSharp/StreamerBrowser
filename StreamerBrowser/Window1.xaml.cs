@@ -20,7 +20,7 @@ namespace StreamerBrowser
     public partial class BrowserWindow : Window
     {
         public List<String> NGWords { get; set; } = new List<string>();
-
+        public Int32 blurSize { get; set; } = 4;
         public BrowserWindow()
         {
             InitializeComponent();
@@ -76,7 +76,7 @@ namespace StreamerBrowser
                 var hasNGWord = NGWords.Any(s => outerHTML.Contains(s));
                 if (hasNGWord) 
                 {
-                    ChangeBrowserBlur(16);
+                    ChangeBrowserBlur(blurSize);
                     return; 
                 }
             }
@@ -85,7 +85,7 @@ namespace StreamerBrowser
 
         private void Browser_NavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
         {
-            ChangeBrowserBlur(16, .25); 
+            ChangeBrowserBlur(blurSize, .25); 
         }
 
         public void ChangeBrowserBlur(Int32 radius, double zoomFactor = 1.0)
@@ -95,14 +95,7 @@ namespace StreamerBrowser
                 var script = $"document.body.style.filter='blur({radius}px)';";
                 Browser.CoreWebView2.ExecuteScriptAsync(script);
             }
-            if (radius == 0)
-            {
-                Browser.ZoomFactor = zoomFactor;
-            } 
-            else
-            {
-                Browser.ZoomFactor = zoomFactor;
-            }
+            Browser.ZoomFactor = zoomFactor;
         }
     }
 }

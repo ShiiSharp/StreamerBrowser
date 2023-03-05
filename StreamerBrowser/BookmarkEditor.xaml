@@ -40,7 +40,7 @@
         <Button Name="DeleteButton" Grid.Column="2" Grid.Row="1" Margin="4,4,4,4" Content="削除" Click="DeleteButton_Click"/>
         <Button Name="UpButton" Grid.Column="2" Grid.Row="3" Margin="4,4,4,4" Content="▲" Click="UpButton_Click"/>
         <Button Name="DownButton" Grid.Column="2" Grid.Row="4" Margin="4,4,4,4" Content="▼" Click="DownButton_Click" />
-        <wv:WebView2 Name="wv2" Grid.Column="2" Grid.Row="5" Source="https://www.google.com/"/>
+        <wv:WebView2 Name="wv2" Grid.Column="2" Grid.Row="5" Source="https://www.google.com/" Visibility="Hidden" NavigationCompleted="wv2_NavigationCompleted" />
         <Button Name="OKButton" Grid.Column="1" Grid.Row="6" Margin="4,4,4,4" Content="OK" Click="OKButton_Click"/>
         <Button Name="CanceldButton" Grid.Column="2" Grid.Row="6" Margin="4,4,4,4" Content="キャンセル追加" Click="CanceldButton_Click"/>
 

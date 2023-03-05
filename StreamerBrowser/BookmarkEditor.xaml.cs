@@ -22,13 +22,17 @@ namespace StreamerBrowser
     /// </summary>
     public partial class BookmarkEditor : Window
     {
-        ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
+        public ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
 
 
-        public BookmarkEditor()
+        public BookmarkEditor(ObservableCollection<BookMarkItem> myBookMarkItems)
         {
             InitializeComponent();
             wv2.Source = new Uri("https://www.google.com/");
+            foreach(var myBookMark in myBookMarkItems) 
+            {
+                bookMarkItems.Add(myBookMark);
+            }
             ListArea.ItemsSource = bookMarkItems;
         }
 
@@ -98,6 +102,18 @@ namespace StreamerBrowser
         {
             DialogResult = null;
             this.Close();
+        }
+
+        private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        {
+            var wv2 = ((Microsoft.Web.WebView2.Wpf.WebView2) sender);
+            var url = wv2.Source.ToString();
+            var targets = bookMarkItems.Where(b => b.Url == url);
+            foreach(var target in targets) 
+            {
+                target.PageTitle = wv2.CoreWebView2.DocumentTitle;
+                target.FaviconUrl = wv2.CoreWebView2.FaviconUri;
+            }
         }
     }
 }
