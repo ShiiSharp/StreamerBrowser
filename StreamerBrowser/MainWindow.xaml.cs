@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.Immutable;
 
 namespace StreamerBrowser
 {
@@ -22,17 +24,44 @@ namespace StreamerBrowser
     public partial class MainWindow : Window
     {
         private ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
-        String NGWord = "岸田";
+        String NGWord = "";
         private BrowserWindow BrowserWindow;
         private BookMarkSwitch bookMarkSwitch;
+        private String bookmarkFileName = "bookmark.lst";
+        private String NGWordFileName = "NGWords.lst";
         public MainWindow()
         {
             InitializeComponent();
+            if (File.Exists(bookmarkFileName))
+            {
+                var tmp = File.ReadLines(bookmarkFileName);
+                foreach(var line in tmp)
+                {
+                    var splitted = line.Split('\t');
+                    if (splitted.Count() == 3)
+                    {
+                        var newBookMarkItem = new BookMarkItem()
+                        {
+                            Url = splitted[0],
+                            FaviconUrl = splitted[1],
+                            isUpdating = false,
+                            PageTitle = splitted[2]
+                        }
+                        ;
+                        bookMarkItems.Add(newBookMarkItem);                       
+                    }
+                }
+            }
+            if (File.Exists(NGWordFileName))
+            {
+                NGWord = File.ReadAllText(NGWordFileName);
+            }
             BrowserWindow = new BrowserWindow();
             BrowserWindow.Width = this.Width;
             BrowserWindow.Height = this.Width * 3 / 4;
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
+            BrowserWindow.Browser.NavigationCompleted += Browser_NavigationCompleted; ;
 
             bookMarkSwitch = new BookMarkSwitch(bookMarkItems, BrowserWindow);
             bookMarkSwitch.Height = BrowserWindow.Height;
@@ -40,6 +69,11 @@ namespace StreamerBrowser
             bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
             bookMarkSwitch.Show();
             //BookMarkMenu.ItemsSource = bookMarkItems;
+        }
+
+        private void Browser_NavigationCompleted(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        {
+            TextBoxUri.Text = BrowserWindow.Browser.Source.ToString();
         }
 
         private void ButtonGoBack_Click(object sender, RoutedEventArgs e)
@@ -90,6 +124,7 @@ namespace StreamerBrowser
         private void MenuWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             BrowserWindow.Close();
+            bookMarkSwitch.Close();
         }
 
         private void MenuWindow_Loaded(object sender, RoutedEventArgs e)
@@ -120,6 +155,7 @@ namespace StreamerBrowser
             BrowserWindow.NGWords = NGWordEdit.NGWordDB;
             foreach (var NGWord in NGWordEdit.NGWordDB)
                 System.Diagnostics.Debug.Print(NGWord);
+            File.WriteAllText(NGWordFileName, NGWord);
         }
 
         private void BookMarkEdit_Click(object sender, RoutedEventArgs e)
@@ -133,8 +169,8 @@ namespace StreamerBrowser
                 {
                     bookMarkItems.Add(bookMarkItem);
                 }
-
             }
+            File.WriteAllLines(bookmarkFileName, bookMarkItems.Select(b => $"{b.Url}\t{b.FaviconUrl}\t{b.PageTitle}"));            
 
         }
     }
@@ -149,5 +185,6 @@ namespace StreamerBrowser
         public string Url { get; set; } = "";
         public string PageTitle { get; set; } = "";
         public string FaviconUrl { get; set; } = "";
+        public bool isUpdating { get; set; } = true;
     }
 }

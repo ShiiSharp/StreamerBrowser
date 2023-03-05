@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StreamerBrowser"
         mc:Ignorable="d"
-        Title="ブックマーク" Height="80" Width="800">
+       
+        Title="ブックマーク" Height="96" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -17,7 +18,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <TextBox Name="TextBoxUri" Margin="4,4,4,4" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0"/>
-        <Button Name="OkButton" Margin="4,4,4,4" Content="OK" Width="Auto" Grid.Column="1" Grid.Row="1" Click="OkButton_Click"/>
-        <Button Name="CancelButton" Margin="4,4,4,4" Content="キャンセル" Width="Auto" Grid.Column="2" Grid.Row="1" Click="CancelButton_Click" />
+        <Button IsDefault="True" Name="OkButton" Margin="4,4,4,4" Content="OK" Width="Auto" Grid.Column="1" Grid.Row="1" Click="OkButton_Click"/>
+        <Button IsCancel="True" Name="CancelButton" Margin="4,4,4,4" Content="キャンセル" Width="Auto" Grid.Column="2" Grid.Row="1" Click="CancelButton_Click" />
     </Grid>
 </Window>

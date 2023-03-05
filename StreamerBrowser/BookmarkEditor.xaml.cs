@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Web.WebView2;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
+using Microsoft.Web.WebView2.Wpf;
 
 namespace StreamerBrowser
 {
@@ -49,13 +51,9 @@ namespace StreamerBrowser
                 if (Uri.IsWellFormedUriString(newBookmarkItem.Url, UriKind.Absolute))
                 {
                     wv2.Source = new Uri(newBookmarkItem.Url);
-                    //wv2.EnsureCoreWebView2Async().Wait();
-                    while (wv2.CoreWebView2 == null)
-                    {
-                        System.Threading.Thread.Sleep(100);
-                    }
-                    newBookmarkItem.FaviconUrl = wv2.CoreWebView2.FaviconUri;
-                    newBookmarkItem.PageTitle = wv2.CoreWebView2.DocumentTitle;
+                    newBookmarkItem.FaviconUrl ="";
+                    newBookmarkItem.PageTitle = "Loading..";
+                    newBookmarkItem.isUpdating = true;
                 }
                 System.Diagnostics.Debug.Print(newBookmarkItem.Url);
                 System.Diagnostics.Debug.Print(newBookmarkItem.PageTitle);
@@ -106,14 +104,30 @@ namespace StreamerBrowser
 
         private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
+            System.Diagnostics.Debug.Print("Web Load Done.");
             var wv2 = ((Microsoft.Web.WebView2.Wpf.WebView2) sender);
             var url = wv2.Source.ToString();
-            var targets = bookMarkItems.Where(b => b.Url == url);
-            foreach(var target in targets) 
+            var target = bookMarkItems.FirstOrDefault(b => b.isUpdating);
+            if (target == null) return;
+            target.isUpdating = false;
+            target.Url = url;
+            target.PageTitle = wv2.CoreWebView2.DocumentTitle;
+            target.FaviconUrl = wv2.CoreWebView2.FaviconUri;
+            ListArea.ItemsSource = null;
+            ListArea.ItemsSource = bookMarkItems;
+            //DoEvents();
+        }
+
+        private void DoEvents()
+        {
+            DispatcherFrame frame = new DispatcherFrame();
+            var callback = new DispatcherOperationCallback(obj =>
             {
-                target.PageTitle = wv2.CoreWebView2.DocumentTitle;
-                target.FaviconUrl = wv2.CoreWebView2.FaviconUri;
-            }
+                ((DispatcherFrame)obj).Continue = false;
+                return null;
+            });
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
+            Dispatcher.PushFrame(frame);
         }
     }
 }

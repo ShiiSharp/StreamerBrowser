@@ -13,8 +13,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate >
                     <StackPanel Orientation="Horizontal">
-                        <Image Height="12px" Source="{Binding FaviconUrl}"/>
-                        <TextBlock Text="{Binding PageTitle}"/>
+                        <Image Height="24px" Margin ="0,0,4,0" Source="{Binding FaviconUrl}"/>
+                        <TextBlock FontSize="16px" Text="{Binding PageTitle}"/>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

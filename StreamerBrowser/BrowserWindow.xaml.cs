@@ -20,7 +20,7 @@ namespace StreamerBrowser
     public partial class BrowserWindow : Window
     {
         public List<String> NGWords { get; set; } = new List<string>();
-        public Int32 blurSize { get; set; } = 4;
+        public Int32 blurSize { get; set; } = 8;
         public BrowserWindow()
         {
             InitializeComponent();
