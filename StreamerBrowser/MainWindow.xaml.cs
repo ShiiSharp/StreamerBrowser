@@ -62,6 +62,7 @@ namespace StreamerBrowser
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
             BrowserWindow.Browser.NavigationCompleted += Browser_NavigationCompleted; ;
+            BrowserWindow.Browser.NavigationStarting += Browser_NavigationStarting;
 
             bookMarkSwitch = new BookMarkSwitch(bookMarkItems, BrowserWindow);
             bookMarkSwitch.Height = BrowserWindow.Height;
@@ -71,9 +72,17 @@ namespace StreamerBrowser
             //BookMarkMenu.ItemsSource = bookMarkItems;
         }
 
+        private void Browser_NavigationStarting(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+        {
+            ButtonGoBack.IsEnabled = false;
+            ButtonGoForward.IsEnabled = false;
+        }
+
         private void Browser_NavigationCompleted(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
             TextBoxUri.Text = BrowserWindow.Browser.Source.ToString();
+            ButtonGoBack.IsEnabled = BrowserWindow.Browser.CanGoBack;
+            ButtonGoForward.IsEnabled = BrowserWindow.Browser.CanGoForward;
         }
 
         private void ButtonGoBack_Click(object sender, RoutedEventArgs e)
@@ -114,15 +123,17 @@ namespace StreamerBrowser
 
         private void MoveBrowserWindowUnderMenuWindow()
         {
+            this.Width = BrowserWindow.Width;
             BrowserWindow.Left = this.Left;
             BrowserWindow.Top = this.Top + this.Height;
-            bookMarkSwitch.Height = BrowserWindow.Height;
-            bookMarkSwitch.Top = BrowserWindow.Top;
+            bookMarkSwitch.Height = this.Height + BrowserWindow.Height;
+            bookMarkSwitch.Top = this.Top;
             bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
         }
 
         private void MenuWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            SaveBookMarks();
             BrowserWindow.Close();
             bookMarkSwitch.Close();
         }
@@ -162,16 +173,45 @@ namespace StreamerBrowser
         {
             var boorkmarkEditor = new BookmarkEditor(bookMarkItems);
             var dialogResult = boorkmarkEditor.ShowDialog();
-            if (dialogResult==true)
+            if (dialogResult == true)
             {
                 bookMarkItems.Clear();
-                foreach(var bookMarkItem in boorkmarkEditor.bookMarkItems)
+                foreach (var bookMarkItem in boorkmarkEditor.bookMarkItems)
                 {
                     bookMarkItems.Add(bookMarkItem);
                 }
             }
-            File.WriteAllLines(bookmarkFileName, bookMarkItems.Select(b => $"{b.Url}\t{b.FaviconUrl}\t{b.PageTitle}"));            
+        }
 
+        private void SaveBookMarks()
+        {
+            File.WriteAllLines(bookmarkFileName, bookMarkItems.Select(b => $"{b.Url}\t{b.FaviconUrl}\t{b.PageTitle}"));
+        }
+
+        private void ButtonAddToBookmark_Click(object sender, RoutedEventArgs e)
+        {
+            if (BrowserWindow.Browser.CoreWebView2!=null)
+            {
+                bookMarkItems.Add(new BookMarkItem()
+                {
+                    Url = BrowserWindow.Browser.Source.ToString(),
+                    FaviconUrl = BrowserWindow.Browser.CoreWebView2.FaviconUri,
+                    PageTitle = BrowserWindow.Browser.CoreWebView2.DocumentTitle,
+                    isUpdating = false
+                }); 
+                
+
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var theMenuItem = (MenuItem) sender;
+            var theTitle = (String)(theMenuItem.Header);
+            var xy=theTitle.Split('x').Select(s => Convert.ToInt32(s)).ToArray();
+            BrowserWindow.Width = xy[0];
+            BrowserWindow.Height = xy[1];
+            MoveBrowserWindowUnderMenuWindow();
         }
     }
 

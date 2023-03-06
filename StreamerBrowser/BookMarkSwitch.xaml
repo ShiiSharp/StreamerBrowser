@@ -4,20 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StreamerBrowser"
+        xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        WindowStyle="ToolWindow"
+        WindowStyle="None"
         ResizeMode="NoResize"
         Title="BookMarkSwitch" Height="450" Width="320">
     <Grid>
-        <ListBox Name="listBox" Margin="4" SelectionChanged="listBox_SelectionChanged" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="0"/>
+        </Grid.RowDefinitions>
+        <ListBox Grid.Row="0" Name="listBox" Margin="4" AllowDrop="True" Drop="listBox_Drop" SelectionChanged="listBox_SelectionChanged" >
             <ListBox.ItemTemplate>
                 <DataTemplate >
                     <StackPanel Orientation="Horizontal">
-                        <Image Height="24px" Margin ="0,0,4,0" Source="{Binding FaviconUrl}"/>
+                        <Image Height="24px" Width="24px" Margin ="0,0,4,0" Source="{Binding FaviconUrl}"/>
                         <TextBlock FontSize="16px" Text="{Binding PageTitle}"/>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        <wv:WebView2 Name="wv2_mini" Grid.Row="1" NavigationCompleted="wv2_NavigationCompleted"/>
     </Grid>
 </Window>

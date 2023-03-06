@@ -31,10 +31,47 @@ namespace StreamerBrowser
             wv2 = myBrowserWindow;
         }
 
+
         private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var newUri = ((BookMarkItem)listBox.SelectedItem).Url;
             wv2.Go(newUri);
+        }
+
+        private void listBox_Drop(object sender, DragEventArgs e)
+        {
+            var d = e.Data;
+            if (d.GetDataPresent(DataFormats.Text))
+            {
+                var targetString = ((string)(e.Data.GetData(DataFormats.Text)));
+                if (!targetString.StartsWith("http")) targetString = "https://" + targetString;
+                if (Uri.IsWellFormedUriString(targetString, UriKind.Absolute))
+                {
+                    var newBookmarkItem = new BookMarkItem()
+                    { Url = targetString };
+                    wv2_mini.Source = new Uri(newBookmarkItem.Url);
+                    newBookmarkItem.FaviconUrl = "";
+                    newBookmarkItem.PageTitle = "Loading..";
+                    newBookmarkItem.isUpdating = true;
+                    Items.Add(newBookmarkItem);
+                }
+
+            }
+        }
+
+        private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        {
+            var wv2x = ((Microsoft.Web.WebView2.Wpf.WebView2)sender);
+            var url = wv2x.Source.ToString();
+            var target = Items.FirstOrDefault(b => b.isUpdating);
+            if (target == null) return;
+            target.isUpdating = false;
+            target.Url = url;
+            target.PageTitle = wv2x.CoreWebView2.DocumentTitle;
+            target.FaviconUrl = wv2x.CoreWebView2.FaviconUri;
+            listBox.ItemsSource = null;
+            listBox.ItemsSource = Items;
+
         }
     }
 }

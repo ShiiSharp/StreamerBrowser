@@ -19,6 +19,7 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="16*"/>
             <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -29,17 +30,24 @@
                 <MenuItem Name ="FileMenu" Header="ファイル">
                     <MenuItem Name="NGWordEdit" Click="NGWordEdit_Click" Header="NGワード設定"/>
                 </MenuItem>
-                <MenuItem Name ="EditMenu" Header="編集" >
-                </MenuItem>
                 <MenuItem Name="BookMarkMenu" Header="ブックマーク" DataContext="{Binding PageTitle}">
                     <MenuItem Name="BookMarkEdit" Header="ブックマーク編集" Click="BookMarkEdit_Click"/>
                 </MenuItem>
+                <MenuItem Name ="EditMenu" Header="ウィンドウサイズ" >
+                    <MenuItem Header="640x480" Click="MenuItem_Click"/>
+                    <MenuItem Header="800x600" Click="MenuItem_Click"/>
+                    <MenuItem Header="1024x768" Click="MenuItem_Click"/>
+                    <MenuItem Header="1366x768" Click="MenuItem_Click"/>
+                    <MenuItem Header="1920x1080" Click="MenuItem_Click"/>
+                </MenuItem>
+
             </Menu>
         </DockPanel>
         <Button x:Name="ButtonGoBack" Content="🔙" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoBack_Click"/>
         <Button x:Name="ButtonGoForward" Grid.Column="1" Content="🔜" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
         <Button x:Name="buttonReload" Grid.Column="2" Content="↻" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
         <TextBox x:Name="TextBoxUri" Grid.Column="3" Margin="2,2,2,2" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" TextAlignment="Left" VerticalContentAlignment="Center" KeyDown="TextBoxUri_KeyDown" />
-        <Button x:Name="ButtonDisableBlur" Content="D" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonDisableBlur_Click" />
+        <Button x:Name="ButtonAddToBookmark" Content="+" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonAddToBookmark_Click" />
+        <Button x:Name="ButtonDisableBlur" Content="👀" Margin="1,1,1,1" Grid.Row="1" Grid.Column="5" Click="ButtonDisableBlur_Click" />
     </Grid>
 </Window>

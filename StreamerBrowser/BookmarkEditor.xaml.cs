@@ -129,5 +129,25 @@ namespace StreamerBrowser
             Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
             Dispatcher.PushFrame(frame);
         }
+
+        private void ListArea_Drop(object sender, DragEventArgs e)
+        {
+            var d = e.Data;
+            if (d.GetDataPresent(DataFormats.Text))
+            {
+                var targetString = ((string)(e.Data.GetData(DataFormats.Text)));
+                if (!targetString.StartsWith("http")) targetString = "https://" + targetString;
+                if (Uri.IsWellFormedUriString(targetString, UriKind.Absolute))
+                {
+                    var newBookmarkItem = new BookMarkItem()
+                    { Url = targetString };
+                    wv2.Source = new Uri(newBookmarkItem.Url);
+                    newBookmarkItem.FaviconUrl = "";
+                    newBookmarkItem.PageTitle = "Loading..";
+                    newBookmarkItem.isUpdating = true;
+                    bookMarkItems.Add(newBookmarkItem);
+                }
+            }
+        }
     }
 }

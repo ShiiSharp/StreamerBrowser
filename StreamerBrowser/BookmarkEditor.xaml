@@ -22,8 +22,9 @@
             <RowDefinition Height="1*" MinHeight="12pt"/>
             <RowDefinition Height="Auto" MinHeight="12pt"/>
         </Grid.RowDefinitions>
-        <ListBox Name="ListArea" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" Margin="8,8,8,8" 
-                 ItemsSource = "{Binding bookMarkItems}">
+        <ListBox Name="ListArea" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="6" Margin="8,8,8,8" AllowDrop="True" 
+                 ItemsSource = "{Binding bookMarkItems}" Drop="ListArea_Drop"
+                 >
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Height="40px">
@@ -44,8 +45,9 @@
         <Button Name="DeleteButton" Grid.Column="2" Grid.Row="1" Margin="4,4,4,4" Content="削除" Click="DeleteButton_Click"/>
         <Button Name="UpButton" Grid.Column="2" Grid.Row="3" Margin="4,4,4,4" Content="▲" Click="UpButton_Click"/>
         <Button Name="DownButton" Grid.Column="2" Grid.Row="4" Margin="4,4,4,4" Content="▼" Click="DownButton_Click" />
-        <wv:WebView2 Name="wv2" Grid.Column="2" Grid.Row="5" Source="https://www.google.com/" Visibility="Visible" NavigationCompleted="wv2_NavigationCompleted" />
+        <wv:WebView2 Name="wv2" Grid.Column="2" Grid.Row="5" Source="https://www.google.com/" Visibility="Hidden"
+                     NavigationCompleted="wv2_NavigationCompleted" />
         <Button Name="OKButton" Grid.Column="1" Grid.Row="6" Margin="4,4,4,4" Content="OK" Click="OKButton_Click"/>
-        <Button Name="CanceldButton" Grid.Column="2" Grid.Row="6" Margin="4,4,4,4" Content="キャンセル追加" Click="CanceldButton_Click"/>
+        <Button Name="CanceldButton" Grid.Column="2" Grid.Row="6" Margin="4,4,4,4" Content="キャンセル" Click="CanceldButton_Click"/>
     </Grid>
 </Window>
