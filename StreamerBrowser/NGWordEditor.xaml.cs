@@ -20,7 +20,15 @@ namespace StreamerBrowser
     /// </summary>
     public partial class NGWordEditor : Window
     {
+        /// <summary>
+        /// NGWordのデータベース
+        /// </summary>
         public List<String> NGWordDB { get; set; } =new List<String>();
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="NGWordsParam">NGWordのリスト</param>
         public NGWordEditor(List<String> NGWordsParam)
         {
             InitializeComponent();

@@ -48,6 +48,6 @@
         <Button x:Name="buttonReload" Grid.Column="2" Content="↻" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
         <TextBox x:Name="TextBoxUri" Grid.Column="3" Margin="2,2,2,2" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" TextAlignment="Left" VerticalContentAlignment="Center" KeyDown="TextBoxUri_KeyDown" />
         <Button x:Name="ButtonAddToBookmark" Content="+" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonAddToBookmark_Click" />
-        <Button x:Name="ButtonDisableBlur" Content="👀" Margin="1,1,1,1" Grid.Row="1" Grid.Column="5" Click="ButtonDisableBlur_Click" />
+        <Button x:Name="ButtonToggleBlur" Content="👀" Margin="1,1,1,1" Grid.Row="1" Grid.Column="5" Click="ButtonToggleBlur_Click" />
     </Grid>
 </Window>

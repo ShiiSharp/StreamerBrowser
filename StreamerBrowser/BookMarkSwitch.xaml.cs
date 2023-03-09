@@ -20,9 +20,20 @@ namespace StreamerBrowser
     /// </summary>
     public partial class BookMarkSwitch : Window
     {
+        /// <summary>
+        /// ブックマークのコレクション
+        /// </summary>
         public ObservableCollection<BookMarkItem> Items { get; set; }= new ObservableCollection<BookMarkItem>();
+        /// <summary>
+        /// ブラウザウインドウ（ブックマーク押下イベント処理用）
+        /// </summary>
         public BrowserWindow wv2 { get; set; }
         
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="myBookMark"></param>
+        /// <param name="myBrowserWindow"></param>
         public BookMarkSwitch(ObservableCollection<BookMarkItem> myBookMark, BrowserWindow myBrowserWindow)
         {
             InitializeComponent();
@@ -31,13 +42,22 @@ namespace StreamerBrowser
             wv2 = myBrowserWindow;
         }
 
-
+        /// <summary>
+        /// ブックマーク押下イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var newUri = ((BookMarkItem)listBox.SelectedItem).Url;
             wv2.Go(newUri);
         }
 
+        /// <summary>
+        /// ブックマークドラッグドロップイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void listBox_Drop(object sender, DragEventArgs e)
         {
             var d = e.Data;
@@ -55,10 +75,14 @@ namespace StreamerBrowser
                     newBookmarkItem.isUpdating = true;
                     Items.Add(newBookmarkItem);
                 }
-
             }
         }
 
+        /// <summary>
+        /// 内部処理用ウェブブラウザ処理完了イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
             var wv2x = ((Microsoft.Web.WebView2.Wpf.WebView2)sender);

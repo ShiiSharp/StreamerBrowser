@@ -19,17 +19,30 @@ namespace StreamerBrowser
     /// </summary>
     public partial class BookmarkItemAdd : Window
     {
+        /// <summary>
+        /// ブックマーク追加ウインドウ　コンストラクタ
+        /// </summary>
         public BookmarkItemAdd()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// OKボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
             this.Close();
         }
 
+        /// <summary>
+        /// キャンセルボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;

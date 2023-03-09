@@ -29,9 +29,15 @@ namespace StreamerBrowser
         private BookMarkSwitch bookMarkSwitch;
         private String bookmarkFileName = "bookmark.lst";
         private String NGWordFileName = "NGWords.lst";
+        private String ResolutionFileName = "Resolution.lst";
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
+            // ブックマーク読み込み
             if (File.Exists(bookmarkFileName))
             {
                 var tmp = File.ReadLines(bookmarkFileName);
@@ -52,13 +58,19 @@ namespace StreamerBrowser
                     }
                 }
             }
+            bookMarkItems.CollectionChanged += BookMarkItems_CollectionChanged;
+            //NGワード読み込み
             if (File.Exists(NGWordFileName))
             {
                 NGWord = File.ReadAllText(NGWordFileName);
             }
+            //解像度読み込み
+            if (File.Exists(ResolutionFileName))
+            {
+                var firstResolution = File.ReadAllText(ResolutionFileName);
+            }
+            //各ウインドウ生成・表示
             BrowserWindow = new BrowserWindow();
-            BrowserWindow.Width = this.Width;
-            BrowserWindow.Height = this.Width * 3 / 4;
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
             BrowserWindow.Browser.NavigationCompleted += Browser_NavigationCompleted; ;
@@ -69,15 +81,34 @@ namespace StreamerBrowser
             bookMarkSwitch.Top = BrowserWindow.Top;
             bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
             bookMarkSwitch.Show();
-            //BookMarkMenu.ItemsSource = bookMarkItems;
         }
 
+        /// <summary>
+        /// ブックマークコレクション変更イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BookMarkItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            SaveBookMarks();
+        }
+
+        /// <summary>
+        /// ブラウザ遷移開始イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Browser_NavigationStarting(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
         {
             ButtonGoBack.IsEnabled = false;
             ButtonGoForward.IsEnabled = false;
         }
 
+        /// <summary>
+        /// ブラウザ遷移終了イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Browser_NavigationCompleted(object? sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
             TextBoxUri.Text = BrowserWindow.Browser.Source.ToString();
@@ -85,16 +116,31 @@ namespace StreamerBrowser
             ButtonGoForward.IsEnabled = BrowserWindow.Browser.CanGoForward;
         }
 
+        /// <summary>
+        /// 「戻る」ボタン押下イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonGoBack_Click(object sender, RoutedEventArgs e)
         {
             TextBoxUri.Text = BrowserWindow.GoBack().ToString();
         }
 
+        /// <summary>
+        /// 「進む」ボタン押下イベント処理 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonGoForward_Click(object sender, RoutedEventArgs e)
         {
             TextBoxUri.Text = BrowserWindow.GoForward().ToString();
         }
 
+        /// <summary>
+        /// URL入力欄キーボード入力イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TextBoxUri_KeyDown(object sender, KeyEventArgs e)
         {
             var typedKey = e.Key;
@@ -105,6 +151,11 @@ namespace StreamerBrowser
             }
         }
 
+        /// <summary>
+        /// URL文字列として適当かどうかを判断し、だめならGoogleの検索クエリURLに変更するメソッド
+        /// </summary>
+        /// <param name="uriString">URL文字列候補</param>
+        /// <returns>URL文字列</returns>
         private String GetUri(String uriString)
         {
             if (!Uri.IsWellFormedUriString(uriString, UriKind.Absolute))
@@ -116,11 +167,19 @@ namespace StreamerBrowser
             }
         }
 
+        /// <summary>
+        /// ウインドウ移動イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuWindow_LocationChanged(object sender, EventArgs e)
         {
             MoveBrowserWindowUnderMenuWindow();
         }
 
+        /// <summary>
+        /// ウインドウの整列
+        /// </summary>
         private void MoveBrowserWindowUnderMenuWindow()
         {
             this.Width = BrowserWindow.Width;
@@ -131,6 +190,11 @@ namespace StreamerBrowser
             bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
         }
 
+        /// <summary>
+        /// 終了イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SaveBookMarks();
@@ -138,22 +202,38 @@ namespace StreamerBrowser
             bookMarkSwitch.Close();
         }
 
+        /// <summary>
+        /// ウインドウ表示イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            MenuWindow_LocationChanged(null, null);
-            TextBoxUri.Text = "https://www.yahoo.co.jp/";
+            if (File.Exists(ResolutionFileName))
+            {
+                var firstResolution = File.ReadAllText(ResolutionFileName);
+                ChangeResolution(firstResolution);
+            }
+            var HomePageUrl = bookMarkItems.Count==0?"https://www.yahoo.co.jp/":bookMarkItems.First().Url; 
+            TextBoxUri.Text = HomePageUrl;
             BrowserWindow.Go(TextBoxUri.Text);
         }
 
-        private void ButtonDisableBlur_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// ぼかしトグルボタン押下イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonToggleBlur_Click(object sender, RoutedEventArgs e)
         {
-            BrowserWindow.ChangeBrowserBlur(0, 1);
+            BrowserWindow.ToggleBlur();
         }
 
-        private void NGWordEdit_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
+        /// <summary>
+        /// 「NGワード編集」ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 
         private void NGWordEdit_Click(object sender, RoutedEventArgs e)
         {
@@ -164,11 +244,14 @@ namespace StreamerBrowser
                 NGWord = String.Concat(NGWordEdit.NGWordDB.Select(s => $"{s} "));
             }
             BrowserWindow.NGWords = NGWordEdit.NGWordDB;
-            foreach (var NGWord in NGWordEdit.NGWordDB)
-                System.Diagnostics.Debug.Print(NGWord);
             File.WriteAllText(NGWordFileName, NGWord);
         }
 
+        /// <summary>
+        /// 「ブックマーク編集」ボタン押下イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BookMarkEdit_Click(object sender, RoutedEventArgs e)
         {
             var boorkmarkEditor = new BookmarkEditor(bookMarkItems);
@@ -183,11 +266,19 @@ namespace StreamerBrowser
             }
         }
 
+        /// <summary>
+        /// ブックマーク保存処理
+        /// </summary>
         private void SaveBookMarks()
         {
             File.WriteAllLines(bookmarkFileName, bookMarkItems.Select(b => $"{b.Url}\t{b.FaviconUrl}\t{b.PageTitle}"));
         }
 
+        /// <summary>
+        /// 「ブックマーク追加」ボタン押下処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ButtonAddToBookmark_Click(object sender, RoutedEventArgs e)
         {
             if (BrowserWindow.Browser.CoreWebView2!=null)
@@ -204,27 +295,58 @@ namespace StreamerBrowser
             }
         }
 
+        /// <summary>
+        /// 解像度メニュー押下イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
-            var theMenuItem = (MenuItem) sender;
+            var theMenuItem = (MenuItem)sender;
             var theTitle = (String)(theMenuItem.Header);
-            var xy=theTitle.Split('x').Select(s => Convert.ToInt32(s)).ToArray();
-            BrowserWindow.Width = xy[0];
-            BrowserWindow.Height = xy[1];
-            MoveBrowserWindowUnderMenuWindow();
+            ChangeResolution(theTitle);
+            File.WriteAllText(ResolutionFileName, theTitle);
+        }
+
+        /// <summary>
+        /// 解像度変更処理
+        /// </summary>
+        /// <param name="theTitle"></param>
+        private void ChangeResolution(string theTitle)
+        {
+            try
+            {
+                var xy = theTitle.Split('x').Select(s => Convert.ToInt32(s)).ToArray();
+                BrowserWindow.Width = xy[0];
+                BrowserWindow.Height = xy[1];
+                MoveBrowserWindowUnderMenuWindow();
+            }
+            catch 
+            {
+            }   
         }
     }
 
-    struct NGWord
-    {
-        public string Word; 
-    };
-
+    /// <summary>
+    /// ブックマーク１アイテム
+    /// </summary>
     public class BookMarkItem
     {
+        /// <summary>
+        /// URL文字列
+        /// </summary>
         public string Url { get; set; } = "";
+        /// <summary>
+        /// ウェブページのタイトル文字列
+        /// </summary>
         public string PageTitle { get; set; } = "";
+        /// <summary>
+        /// ウェブページのアイコンURL文字列
+        /// </summary>
         public string FaviconUrl { get; set; } = "";
+        /// <summary>
+        /// アップデート中フラグ
+        /// </summary>
         public bool isUpdating { get; set; } = true;
     }
 }

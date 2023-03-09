@@ -24,9 +24,16 @@ namespace StreamerBrowser
     /// </summary>
     public partial class BookmarkEditor : Window
     {
+        /// <summary>
+        /// ブックマークのコレクション
+        /// </summary>
         public ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
 
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="myBookMarkItems">ブックマークの初期コレクション</param>
         public BookmarkEditor(ObservableCollection<BookMarkItem> myBookMarkItems)
         {
             InitializeComponent();
@@ -38,6 +45,11 @@ namespace StreamerBrowser
             ListArea.ItemsSource = bookMarkItems;
         }
 
+        /// <summary>
+        /// 追加ボタンイベント処理
+        /// </summary>
+        /// <param name="sender">イベント発火オブジェクト</param>
+        /// <param name="e"></param>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var BookmarkItemAddWindow = new BookmarkItemAdd();
@@ -55,13 +67,14 @@ namespace StreamerBrowser
                     newBookmarkItem.PageTitle = "Loading..";
                     newBookmarkItem.isUpdating = true;
                 }
-                System.Diagnostics.Debug.Print(newBookmarkItem.Url);
-                System.Diagnostics.Debug.Print(newBookmarkItem.PageTitle);
-                System.Diagnostics.Debug.Print(newBookmarkItem.FaviconUrl);
                 bookMarkItems.Add(newBookmarkItem);
             }
         }
-
+        /// <summary>
+        /// 削除ボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             if (ListArea.SelectedIndex == -1)
@@ -72,6 +85,11 @@ namespace StreamerBrowser
             ListArea.SelectedIndex = idx;
         }
 
+        /// <summary>
+        /// 上へボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void UpButton_Click(object sender, RoutedEventArgs e)
         {
             if (ListArea.SelectedIndex == -1) return;
@@ -81,6 +99,11 @@ namespace StreamerBrowser
             ListArea.SelectedIndex = idx- 1;
         }
 
+        /// <summary>
+        /// 下へボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DownButton_Click(object sender, RoutedEventArgs e)
         {
             if (ListArea.SelectedIndex == -1) return;
@@ -90,21 +113,35 @@ namespace StreamerBrowser
             ListArea.SelectedIndex = idx + 1;
         }
 
+        /// <summary>
+        /// OKボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
             this.Close();
         }
 
+        /// <summary>
+        /// キャンセルボタンイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CanceldButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = null;
             this.Close();
         }
 
+        /// <summary>
+        /// ブラウザ表示終了イベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
-            System.Diagnostics.Debug.Print("Web Load Done.");
             var wv2 = ((Microsoft.Web.WebView2.Wpf.WebView2) sender);
             var url = wv2.Source.ToString();
             var target = bookMarkItems.FirstOrDefault(b => b.isUpdating);
@@ -118,18 +155,11 @@ namespace StreamerBrowser
             //DoEvents();
         }
 
-        private void DoEvents()
-        {
-            DispatcherFrame frame = new DispatcherFrame();
-            var callback = new DispatcherOperationCallback(obj =>
-            {
-                ((DispatcherFrame)obj).Continue = false;
-                return null;
-            });
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
-            Dispatcher.PushFrame(frame);
-        }
-
+        /// <summary>
+        /// 一覧エリアドラッグドロップイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ListArea_Drop(object sender, DragEventArgs e)
         {
             var d = e.Data;
