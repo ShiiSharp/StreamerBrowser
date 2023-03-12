@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.Immutable;
+using Microsoft.Web.WebView2.Core;
 
 namespace StreamerBrowser
 {
@@ -30,6 +31,7 @@ namespace StreamerBrowser
         private String bookmarkFileName = "bookmark.lst";
         private String NGWordFileName = "NGWords.lst";
         private String ResolutionFileName = "Resolution.lst";
+        public CoreWebView2Environment coreWebView2Environment { get; set; }
 
         /// <summary>
         /// コンストラクタ
@@ -70,13 +72,13 @@ namespace StreamerBrowser
                 var firstResolution = File.ReadAllText(ResolutionFileName);
             }
             //各ウインドウ生成・表示
-            BrowserWindow = new BrowserWindow();
+            BrowserWindow = new BrowserWindow(coreWebView2Environment);
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
             BrowserWindow.Browser.NavigationCompleted += Browser_NavigationCompleted; ;
             BrowserWindow.Browser.NavigationStarting += Browser_NavigationStarting;
 
-            bookMarkSwitch = new BookMarkSwitch(bookMarkItems, BrowserWindow);
+            bookMarkSwitch = new BookMarkSwitch(bookMarkItems, BrowserWindow, coreWebView2Environment);
             bookMarkSwitch.Height = BrowserWindow.Height;
             bookMarkSwitch.Top = BrowserWindow.Top;
             bookMarkSwitch.Left = BrowserWindow.Left + BrowserWindow.Width;
@@ -254,7 +256,7 @@ namespace StreamerBrowser
         /// <param name="e"></param>
         private void BookMarkEdit_Click(object sender, RoutedEventArgs e)
         {
-            var boorkmarkEditor = new BookmarkEditor(bookMarkItems);
+            var boorkmarkEditor = new BookmarkEditor(bookMarkItems, coreWebView2Environment);
             var dialogResult = boorkmarkEditor.ShowDialog();
             if (dialogResult == true)
             {

@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.Web.WebView2.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,13 +31,14 @@ namespace StreamerBrowser
         /// ブラウザウインドウ（ブックマーク押下イベント処理用）
         /// </summary>
         public BrowserWindow wv2 { get; set; }
+        private CoreWebView2Environment wv2Environment;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="myBookMark"></param>
         /// <param name="myBrowserWindow"></param>
-        public BookMarkSwitch(ObservableCollection<BookMarkItem> myBookMark, BrowserWindow myBrowserWindow)
+        public BookMarkSwitch(ObservableCollection<BookMarkItem> myBookMark, BrowserWindow myBrowserWindow, CoreWebView2Environment env)
         {
             InitializeComponent();
             Items = myBookMark;
@@ -67,35 +71,37 @@ namespace StreamerBrowser
                 if (!targetString.StartsWith("http")) targetString = "https://" + targetString;
                 if (Uri.IsWellFormedUriString(targetString, UriKind.Absolute))
                 {
-                    var newBookmarkItem = new BookMarkItem()
-                    { Url = targetString };
-                    wv2_mini.Source = new Uri(newBookmarkItem.Url);
-                    newBookmarkItem.FaviconUrl = "";
-                    newBookmarkItem.PageTitle = "Loading..";
-                    newBookmarkItem.isUpdating = true;
+                    var newBookmarkItem = AddBookMarkItemCadidate(targetString); 
                     Items.Add(newBookmarkItem);
                 }
             }
         }
 
-        /// <summary>
-        /// 内部処理用ウェブブラウザ処理完了イベント処理
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void wv2_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+        private BookMarkItem AddBookMarkItemCadidate(string UrlString)
         {
-            var wv2x = ((Microsoft.Web.WebView2.Wpf.WebView2)sender);
-            var url = wv2x.Source.ToString();
-            var target = Items.FirstOrDefault(b => b.isUpdating);
-            if (target == null) return;
-            target.isUpdating = false;
-            target.Url = url;
-            target.PageTitle = wv2x.CoreWebView2.DocumentTitle;
-            target.FaviconUrl = wv2x.CoreWebView2.FaviconUri;
-            listBox.ItemsSource = null;
-            listBox.ItemsSource = Items;
-
+            var newBookmarkItem = new BookMarkItem()
+            {
+                Url = UrlString,
+            };
+            if (Uri.IsWellFormedUriString(newBookmarkItem.Url, UriKind.Absolute))
+            {
+                var ps = new System.Diagnostics.Process();
+                var psi = ps.StartInfo;
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.StandardOutputEncoding = Encoding.UTF8;
+                psi.CreateNoWindow = true;
+                psi.FileName = "Curl.exe";
+                psi.Arguments = $"-L {UrlString}";
+                ps.Start();
+                var HtmlDocument = ps.StandardOutput.ReadToEnd();
+                var TitleLine = Regex.Match(HtmlDocument, "<title>.*</title>").Value;
+                newBookmarkItem.FaviconUrl = String.Concat(newBookmarkItem.Url.Split('/').Take(3).Select(s => $"{s}/")) + "favicon.ico";
+                newBookmarkItem.PageTitle = TitleLine.Replace("<title>", "").Replace("</title>", "");
+                newBookmarkItem.isUpdating = true;
+            }
+            return newBookmarkItem;
         }
     }
 }

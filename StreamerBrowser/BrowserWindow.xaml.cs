@@ -35,12 +35,15 @@ namespace StreamerBrowser
         /// </summary>
         public bool isBlured { get; set; } = true;
 
+        private CoreWebView2Environment CoreWebView2Environment;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BrowserWindow()
+        public BrowserWindow(CoreWebView2Environment env)
         {
             InitializeComponent();
+            CoreWebView2Environment = env;
         }
 
         /// <summary>
@@ -108,8 +111,8 @@ namespace StreamerBrowser
             {
                 AdditionalBrowserArguments = "--disable-features=AudioServiceOutOfProcess"
             };
-            var env = await CoreWebView2Environment.CreateAsync(null, null, options);
-            await Browser.EnsureCoreWebView2Async(env); 
+            CoreWebView2Environment = await CoreWebView2Environment.CreateAsync(null, null, options);
+            await Browser.EnsureCoreWebView2Async(CoreWebView2Environment); 
         }
 
         /// <summary>

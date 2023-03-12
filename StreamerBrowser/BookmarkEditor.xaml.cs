@@ -16,6 +16,9 @@ using Microsoft.Web.WebView2;
 using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Web.WebView2.Core;
+using System.Windows.Media.Animation;
+using System.Text.RegularExpressions;
 
 namespace StreamerBrowser
 {
@@ -28,16 +31,16 @@ namespace StreamerBrowser
         /// ブックマークのコレクション
         /// </summary>
         public ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
-
+        private CoreWebView2Environment environment;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="myBookMarkItems">ブックマークの初期コレクション</param>
-        public BookmarkEditor(ObservableCollection<BookMarkItem> myBookMarkItems)
+        public BookmarkEditor(ObservableCollection<BookMarkItem> myBookMarkItems, CoreWebView2Environment env)
         {
             InitializeComponent();
-            wv2.Source = new Uri("https://www.google.com/");
+            this.environment = env;
             foreach(var myBookMark in myBookMarkItems) 
             {
                 bookMarkItems.Add(myBookMark);
@@ -54,22 +57,41 @@ namespace StreamerBrowser
         {
             var BookmarkItemAddWindow = new BookmarkItemAdd();
             var dialogResult = BookmarkItemAddWindow.ShowDialog();
-            if (dialogResult == true) 
+            if (dialogResult == true)
             {
-                var newBookmarkItem = new BookMarkItem()
-                {
-                    Url = BookmarkItemAddWindow.TextBoxUri.Text,
-                };
-                if (Uri.IsWellFormedUriString(newBookmarkItem.Url, UriKind.Absolute))
-                {
-                    wv2.Source = new Uri(newBookmarkItem.Url);
-                    newBookmarkItem.FaviconUrl ="";
-                    newBookmarkItem.PageTitle = "Loading..";
-                    newBookmarkItem.isUpdating = true;
-                }
+                var UrlString = BookmarkItemAddWindow.TextBoxUri.Text;
+                BookMarkItem newBookmarkItem = AddBookMarkItemCadidate(UrlString);
                 bookMarkItems.Add(newBookmarkItem);
             }
         }
+
+        private BookMarkItem AddBookMarkItemCadidate(string UrlString)
+        {
+            var newBookmarkItem = new BookMarkItem()
+            {
+                Url = UrlString,
+            };
+            if (Uri.IsWellFormedUriString(newBookmarkItem.Url, UriKind.Absolute))
+            {
+                var ps = new System.Diagnostics.Process();
+                var psi = ps.StartInfo;
+                psi.UseShellExecute = false;
+                psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
+                psi.StandardOutputEncoding = Encoding.UTF8;
+                psi.CreateNoWindow = true;
+                psi.FileName = "Curl.exe";
+                psi.Arguments = $"-L {UrlString}";
+                ps.Start();
+                var HtmlDocument = ps.StandardOutput.ReadToEnd();
+                var TitleLine = Regex.Match(HtmlDocument, "<title>.*</title>").Value;
+                newBookmarkItem.FaviconUrl = String.Concat(newBookmarkItem.Url.Split('/').Take(3).Select(s => $"{s}/")) + "favicon.ico";
+                newBookmarkItem.PageTitle = TitleLine.Replace("<title>", "").Replace("</title>", "");
+                newBookmarkItem.isUpdating = true;
+            }
+            return newBookmarkItem;
+        }
+
         /// <summary>
         /// 削除ボタンイベント処理
         /// </summary>
@@ -169,12 +191,7 @@ namespace StreamerBrowser
                 if (!targetString.StartsWith("http")) targetString = "https://" + targetString;
                 if (Uri.IsWellFormedUriString(targetString, UriKind.Absolute))
                 {
-                    var newBookmarkItem = new BookMarkItem()
-                    { Url = targetString };
-                    wv2.Source = new Uri(newBookmarkItem.Url);
-                    newBookmarkItem.FaviconUrl = "";
-                    newBookmarkItem.PageTitle = "Loading..";
-                    newBookmarkItem.isUpdating = true;
+                    var newBookmarkItem = AddBookMarkItemCadidate(targetString);
                     bookMarkItems.Add(newBookmarkItem);
                 }
             }

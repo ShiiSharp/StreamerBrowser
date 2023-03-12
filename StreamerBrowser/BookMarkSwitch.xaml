@@ -24,6 +24,5 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <wv:WebView2 Name="wv2_mini" Grid.Row="1" NavigationCompleted="wv2_NavigationCompleted"/>
     </Grid>
 </Window>

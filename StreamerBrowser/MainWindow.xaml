@@ -43,11 +43,21 @@
 
             </Menu>
         </DockPanel>
-        <Button x:Name="ButtonGoBack" Content="🔙" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoBack_Click"/>
-        <Button x:Name="ButtonGoForward" Grid.Column="1" Content="🔜" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
-        <Button x:Name="buttonReload" Grid.Column="2" Content="↻" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click"/>
+        <Button x:Name="ButtonGoBack" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoBack_Click">
+            <Image Height="16px" Source="/res/img/Backwards.png"/>
+        </Button>
+        <Button x:Name="ButtonGoForward" Grid.Column="1" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click">
+            <Image Height="16px" Source="/res/img/Forwards.png"/>
+        </Button>
+        <Button x:Name="buttonReload" Grid.Column="2" Margin="1,1,1,1" Grid.Row="1" Click="ButtonGoForward_Click">
+            <Image Height="16px" Source="/res/img/Refresh.png"/>
+        </Button>
         <TextBox x:Name="TextBoxUri" Grid.Column="3" Margin="2,2,2,2" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" TextAlignment="Left" VerticalContentAlignment="Center" KeyDown="TextBoxUri_KeyDown" />
-        <Button x:Name="ButtonAddToBookmark" Content="+" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonAddToBookmark_Click" />
-        <Button x:Name="ButtonToggleBlur" Content="👀" Margin="1,1,1,1" Grid.Row="1" Grid.Column="5" Click="ButtonToggleBlur_Click" />
+        <Button x:Name="ButtonAddToBookmark" Margin="1,1,1,1" Grid.Row="1" Grid.Column="4" Click="ButtonAddToBookmark_Click">
+            <Image Height="16px" Source="/res/img/Add.png"/>
+        </Button>
+        <Button x:Name="ButtonToggleBlur" Margin="1,1,1,1" Grid.Row="1" Grid.Column="5" Click="ButtonToggleBlur_Click">
+            <Image Height="16px" Source="/res/img/Effect.png"/>
+        </Button>
     </Grid>
 </Window>
