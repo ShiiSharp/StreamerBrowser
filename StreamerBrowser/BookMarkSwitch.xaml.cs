@@ -36,8 +36,9 @@ namespace StreamerBrowser
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="myBookMark"></param>
-        /// <param name="myBrowserWindow"></param>
+        /// <param name="myBookMark">ブックマーク一覧</param>
+        /// <param name="myBrowserWindow">ブラウザウインドウ</param>
+        /// <param name="env">WebView2起動用環境</param>
         public BookMarkSwitch(ObservableCollection<BookMarkItem> myBookMark, BrowserWindow myBrowserWindow, CoreWebView2Environment env)
         {
             InitializeComponent();

@@ -31,6 +31,9 @@ namespace StreamerBrowser
         private String bookmarkFileName = "bookmark.lst";
         private String NGWordFileName = "NGWords.lst";
         private String ResolutionFileName = "Resolution.lst";
+        /// <summary>
+        /// WebViewの起動環境を保存するためのプロパティ
+        /// </summary>
         public CoreWebView2Environment coreWebView2Environment { get; set; }
 
         /// <summary>
