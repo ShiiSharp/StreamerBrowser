@@ -37,6 +37,7 @@ namespace StreamerBrowser
         /// コンストラクタ
         /// </summary>
         /// <param name="myBookMarkItems">ブックマークの初期コレクション</param>
+        /// <param name="env">WebView2用の環境</param>
         public BookmarkEditor(ObservableCollection<BookMarkItem> myBookMarkItems, CoreWebView2Environment env)
         {
             InitializeComponent();
