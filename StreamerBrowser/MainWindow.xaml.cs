@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.Immutable;
 using Microsoft.Web.WebView2.Core;
+using System.Net;
 
 namespace StreamerBrowser
 {
@@ -31,6 +32,7 @@ namespace StreamerBrowser
         private String bookmarkFileName = "bookmark.lst";
         private String NGWordFileName = "NGWords.lst";
         private String ResolutionFileName = "Resolution.lst";
+        private HttpListener httpListener = new HttpListener();
         /// <summary>
         /// WebViewの起動環境を保存するためのプロパティ
         /// </summary>
@@ -212,7 +214,7 @@ namespace StreamerBrowser
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void MenuWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void MenuWindow_Loaded(object sender, RoutedEventArgs e)
         {
             if (File.Exists(ResolutionFileName))
             {
@@ -222,6 +224,56 @@ namespace StreamerBrowser
             var HomePageUrl = bookMarkItems.Count==0?"https://www.yahoo.co.jp/":bookMarkItems.First().Url; 
             TextBoxUri.Text = HomePageUrl;
             BrowserWindow.Go(TextBoxUri.Text);
+            await HttpListenerLoop();
+        }
+
+        private async Task HttpListenerLoop()
+        {
+            httpListener.Prefixes.Add("http://localhost:9801/");
+            httpListener.Start();
+            while(true)
+            {
+                await LaunchServer();
+            }
+        }
+
+        private async Task LaunchServer()
+        {
+            var context = await httpListener.GetContextAsync();
+            var request = context.Request;
+            var absolutePaths = request.Url.AbsolutePath.Split('/');
+            if (absolutePaths.Count() == 0) { ReturnError(context); return; }
+            var index = 0;
+            if (absolutePaths[1] == "favicon.ico") { ReturnError(context); return; }
+            if (absolutePaths[1] == "fx") { ToggleBlur(context);return; }
+            Int32.TryParse(absolutePaths[1], out index);
+            if (index < 0) { ReturnError(context); return; }
+            if (index >= bookMarkItems.Count) { ReturnError(context); return; }
+            var response = context.Response;
+            var bookmarkItem = bookMarkItems[index];
+            BrowserWindow.Go(bookmarkItem.Url);
+            response.ContentType= "text/html";
+            response.ContentEncoding = Encoding.UTF8;
+            response.StatusCode = (int)HttpStatusCode.OK;
+            var responseString = $"<html><head><meta charset=\"utf-8\"/></head><body><img src=\"{bookmarkItem.FaviconUrl}\"/>「{bookmarkItem.PageTitle}」に移動しました。</body></html>";
+            var responseBytes = System.Text.Encoding.UTF8.GetBytes(responseString);
+            response.ContentLength64 = responseBytes.Length;
+            await response.OutputStream.WriteAsync(responseBytes, 0, responseBytes.Length);
+            response.OutputStream.Close();
+
+        }
+
+        private void ToggleBlur(HttpListenerContext context)
+        {
+            BrowserWindow.ToggleBlur();
+            var response = context.Response as HttpListenerResponse;
+            response.StatusCode = (Int32)(HttpStatusCode.OK);
+            response.ContentEncoding = Encoding.UTF8;
+            response.ContentType = "text/html";
+            var Message = "<html><body><h1>Browser Window Blur Toggled</h1></body></html>";
+            var MessageBytes = System.Text.Encoding.UTF8.GetBytes(Message);
+            response.ContentLength64 = MessageBytes.Length;
+            response.OutputStream.Write(MessageBytes, 0, MessageBytes.Length);
         }
 
         /// <summary>
@@ -330,12 +382,24 @@ namespace StreamerBrowser
             {
             }   
         }
+        private void ReturnError(HttpListenerContext context)
+        {
+            var response = context.Response as HttpListenerResponse;
+            response.StatusCode = (Int32)(HttpStatusCode.NotFound);
+            response.ContentEncoding = Encoding.UTF8;
+            response.ContentType = "text/html";
+            var ErrorMessage = "<html><body><h1>404 Not Found</h1></body></html>";
+            var ErrorBytes = System.Text.Encoding.UTF8.GetBytes(ErrorMessage);
+            response.ContentLength64 = ErrorBytes.Length;
+            response.OutputStream.Write(ErrorBytes, 0, ErrorBytes.Length);
+        }
     }
 
-    /// <summary>
-    /// ブックマーク１アイテム
-    /// </summary>
-    public class BookMarkItem
+
+        /// <summary>
+        /// ブックマーク１アイテム
+        /// </summary>
+        public class BookMarkItem
     {
         /// <summary>
         /// URL文字列

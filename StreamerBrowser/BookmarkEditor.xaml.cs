@@ -19,6 +19,8 @@ using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Web.WebView2.Core;
 using System.Windows.Media.Animation;
 using System.Text.RegularExpressions;
+using System.Net;
+using System.Net.Http;
 
 namespace StreamerBrowser
 {
@@ -32,6 +34,7 @@ namespace StreamerBrowser
         /// </summary>
         public ObservableCollection<BookMarkItem> bookMarkItems = new ObservableCollection<BookMarkItem>();
         private CoreWebView2Environment environment;
+        private HttpListener httpListener = new HttpListener();
 
         /// <summary>
         /// コンストラクタ
