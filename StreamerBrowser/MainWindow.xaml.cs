@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Collections.Immutable;
 using Microsoft.Web.WebView2.Core;
 using System.Net;
+using System.Diagnostics;
 
 namespace StreamerBrowser
 {
@@ -263,18 +264,7 @@ namespace StreamerBrowser
 
         }
 
-        private void ToggleBlur(HttpListenerContext context)
-        {
-            BrowserWindow.ToggleBlur();
-            var response = context.Response as HttpListenerResponse;
-            response.StatusCode = (Int32)(HttpStatusCode.OK);
-            response.ContentEncoding = Encoding.UTF8;
-            response.ContentType = "text/html";
-            var Message = "<html><body><h1>Browser Window Blur Toggled</h1></body></html>";
-            var MessageBytes = System.Text.Encoding.UTF8.GetBytes(Message);
-            response.ContentLength64 = MessageBytes.Length;
-            response.OutputStream.Write(MessageBytes, 0, MessageBytes.Length);
-        }
+
 
         /// <summary>
         /// ぼかしトグルボタン押下イベント処理
@@ -393,13 +383,38 @@ namespace StreamerBrowser
             response.ContentLength64 = ErrorBytes.Length;
             response.OutputStream.Write(ErrorBytes, 0, ErrorBytes.Length);
         }
+
+        private void ToggleBlur(HttpListenerContext context)
+        {
+            var request = context.Request.Url.AbsolutePath;
+            var requestChunk = request.Split('/');
+            bool? BlurFlag = null;
+            if (requestChunk.Count()>2)
+            {
+                var num = 0;
+                if (Int32.TryParse(requestChunk[2], out num))
+                {
+                    if (num == 0) BlurFlag = true; else BlurFlag = false; 
+                }
+            }
+            BrowserWindow.ToggleBlur(BlurFlag);
+            var response = context.Response as HttpListenerResponse;
+            response.StatusCode = (Int32)(HttpStatusCode.OK);
+            response.ContentEncoding = Encoding.UTF8;
+            response.ContentType = "text/html";
+            var ErrorMessage = $"<html><body><h1>Blur Changed {BlurFlag}</h1></body></html>";
+            var ErrorBytes = System.Text.Encoding.UTF8.GetBytes(ErrorMessage);
+            response.ContentLength64 = ErrorBytes.Length;
+            response.OutputStream.Write(ErrorBytes, 0, ErrorBytes.Length);
+        }
+
     }
 
 
-        /// <summary>
-        /// ブックマーク１アイテム
-        /// </summary>
-        public class BookMarkItem
+    /// <summary>
+    /// ブックマーク１アイテム
+    /// </summary>
+    public class BookMarkItem
     {
         /// <summary>
         /// URL文字列

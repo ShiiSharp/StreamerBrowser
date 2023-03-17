@@ -150,8 +150,16 @@ namespace StreamerBrowser
         /// <summary>
         /// ぼかし切り替え
         /// </summary>
-        public void ToggleBlur()
+        public void ToggleBlur(bool? ToggleMode = null)
         {
+            if (ToggleMode == true) 
+            {
+                isBlured = false;
+            }
+            if (ToggleMode ==false)
+            {
+                isBlured = true;
+            }
             if (isBlured)
             {
                 ChangeBrowserBlur(0);
@@ -162,7 +170,6 @@ namespace StreamerBrowser
                 ChangeBrowserBlur(BlurSize);
                 isBlured = true;
             }
-
         }
 
         /// <summary>
