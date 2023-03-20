@@ -9,8 +9,8 @@
         LocationChanged="MenuWindow_LocationChanged"    
         Closing="MenuWindow_Closing"
         Title="Streamer Browser" Height="96" Width="800"
-        Name ="MenuWindow"
-        ResizeMode="NoResize"
+        Name ="MenuWindow" Activated="MenuWindow_Activated"
+        ResizeMode="NoResize" Icon="/res/img/face.png"
         >
     <Grid>
         <Grid.ColumnDefinitions>

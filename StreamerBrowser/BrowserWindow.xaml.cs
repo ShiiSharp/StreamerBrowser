@@ -188,5 +188,17 @@ namespace StreamerBrowser
             }
             Browser.ZoomFactor = zoomFactor;
         }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            if (this.Owner==null) return;
+            try
+            {
+                this.Owner.Activate();
+            }
+            catch (Exception ex) 
+            {
+            }
+        }
     }
 }

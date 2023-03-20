@@ -18,6 +18,7 @@ using System.Collections.Immutable;
 using Microsoft.Web.WebView2.Core;
 using System.Net;
 using System.Diagnostics;
+using System.Windows.Resources;
 
 namespace StreamerBrowser
 {
@@ -44,12 +45,25 @@ namespace StreamerBrowser
         /// </summary>
         public MainWindow()
         {
+
+            //現在のプロセスがすでに実行されているかどうかを確認する
+            Process current = Process.GetCurrentProcess();
+
+            //現在のプロセスと同じ名前のすべてのプロセスを取得します
+            Process[] processes = Process.GetProcessesByName(current.ProcessName);
+
+            //同じ名前のプロセスが複数ある場合は、メッセージを表示して終了します
+            if (processes.Length > 1)
+            {
+                MessageBox.Show("すでに起動しています。");
+                Environment.Exit(0);
+            }
             InitializeComponent();
             // ブックマーク読み込み
             if (File.Exists(bookmarkFileName))
             {
                 var tmp = File.ReadLines(bookmarkFileName);
-                foreach(var line in tmp)
+                foreach (var line in tmp)
                 {
                     var splitted = line.Split('\t');
                     if (splitted.Count() == 3)
@@ -62,7 +76,7 @@ namespace StreamerBrowser
                             PageTitle = splitted[2]
                         }
                         ;
-                        bookMarkItems.Add(newBookMarkItem);                       
+                        bookMarkItems.Add(newBookMarkItem);
                     }
                 }
             }
@@ -79,6 +93,7 @@ namespace StreamerBrowser
             }
             //各ウインドウ生成・表示
             BrowserWindow = new BrowserWindow(coreWebView2Environment);
+
             BrowserWindow.NGWords = NGWord.Split(' ').ToList();
             BrowserWindow.Show();
             BrowserWindow.Browser.NavigationCompleted += Browser_NavigationCompleted; ;
@@ -152,7 +167,7 @@ namespace StreamerBrowser
         private void TextBoxUri_KeyDown(object sender, KeyEventArgs e)
         {
             var typedKey = e.Key;
-            if (typedKey==Key.Enter||typedKey==Key.Return)
+            if (typedKey == Key.Enter || typedKey == Key.Return)
             {
                 var newUri = GetUri(TextBoxUri.Text);
                 TextBoxUri.Text = BrowserWindow.Go(newUri).ToString();
@@ -168,7 +183,7 @@ namespace StreamerBrowser
         {
             if (!Uri.IsWellFormedUriString(uriString, UriKind.Absolute))
             {
-                    uriString = $"https://www.google.com/search?q={uriString}";
+                uriString = $"https://www.google.com/search?q={uriString}";
             }
             {
                 return uriString;
@@ -203,13 +218,16 @@ namespace StreamerBrowser
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        //このコードは、メニュー ウィンドウが閉じるときに実行されます。ブックマークを保存し、ブラウザ ウィンドウを閉じ、ブック マーク スイッチを閉じます。 
         private void MenuWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //Save the bookmarks
             SaveBookMarks();
+            //Close the BrowserWindow
             BrowserWindow.Close();
+            //Close the bookMarkSwitch
             bookMarkSwitch.Close();
         }
-
         /// <summary>
         /// ウインドウ表示イベント処理
         /// </summary>
@@ -222,48 +240,89 @@ namespace StreamerBrowser
                 var firstResolution = File.ReadAllText(ResolutionFileName);
                 ChangeResolution(firstResolution);
             }
-            var HomePageUrl = bookMarkItems.Count==0?"https://www.yahoo.co.jp/":bookMarkItems.First().Url; 
+            var HomePageUrl = bookMarkItems.Count == 0 ? "https://www.yahoo.co.jp/" : bookMarkItems.First().Url;
             TextBoxUri.Text = HomePageUrl;
             BrowserWindow.Go(TextBoxUri.Text);
+            httpListener.Stop();
             await HttpListenerLoop();
+            BrowserWindow.Owner = this;
+            bookMarkSwitch.Owner = this;
+
         }
 
+
+        /// <summary>
+        /// This method starts an HTTP listener loop that listens for requests on port 9801.
+        /// </summary>
+        /// <returns>
+        /// An asynchronous task that launches the server.
+        /// </returns>
+
+        //This code creates an HTTP listener on port 9801 and starts a loop that will launch the server each time it is called.
         private async Task HttpListenerLoop()
         {
+            //Add the prefix for the HTTP listener
             httpListener.Prefixes.Add("http://localhost:9801/");
+            //Start the HTTP listener
             httpListener.Start();
-            while(true)
+            //Create an infinite loop
+            while (true)
             {
+                //Call the LaunchServer method each time the loop is called
                 await LaunchServer();
             }
         }
 
+        /// <summary>
+        /// Launches the server and navigates to the bookmark item URL.
+        /// </summary>
+        /// <returns>
+        /// Task representing the asynchronous operation.
+        /// </returns>
+
+
+        //Rewritten code with comments
+
         private async Task LaunchServer()
         {
+            //リクエストのコンテキストを取得する
             var context = await httpListener.GetContextAsync();
             var request = context.Request;
+            //リクエストの絶対パスを分割する
             var absolutePaths = request.Url.AbsolutePath.Split('/');
+            //絶対パスが空かどうかを確認する
             if (absolutePaths.Count() == 0) { ReturnError(context); return; }
             var index = 0;
+            //Check if the request is for favicon.ico
             if (absolutePaths[1] == "favicon.ico") { ReturnError(context); return; }
-            if (absolutePaths[1] == "fx") { ToggleBlur(context);return; }
+            //Check if the request is for toggle blur
+            if (absolutePaths[1] == "fx") { ToggleBlur(context); return; }
+            //Try to parse the absolute path to an integer
             Int32.TryParse(absolutePaths[1], out index);
-            if (index < 0) { ReturnError(context); return; }
-            if (index >= bookMarkItems.Count) { ReturnError(context); return; }
+            //Check if the index is out of bounds
+            if (index == bookMarkItems.Count) { ReturnError(context); return; }
             var response = context.Response;
+            //Get the bookmark item from the list
             var bookmarkItem = bookMarkItems[index];
+            //Go to the URL of the bookmark item
             BrowserWindow.Go(bookmarkItem.Url);
-            response.ContentType= "text/html";
+            //Set the response content type
+            response.ContentType = "text/html";
+            //Set the response encoding
             response.ContentEncoding = Encoding.UTF8;
+            //Set the response status code
             response.StatusCode = (int)HttpStatusCode.OK;
-            var responseString = $"<html><head><meta charset=\"utf-8\"/></head><body><img src=\"{bookmarkItem.FaviconUrl}\"/>「{bookmarkItem.PageTitle}」に移動しました。</body></html>";
+            //Create the response string
+            var responseString = $"      「{bookmarkItem.PageTitle}」に移動しました。  ";
+            //Get the response bytes
             var responseBytes = System.Text.Encoding.UTF8.GetBytes(responseString);
+            //Set the response content length
             response.ContentLength64 = responseBytes.Length;
+            //Write the response bytes to the output stream
             await response.OutputStream.WriteAsync(responseBytes, 0, responseBytes.Length);
+            //Close the output stream
             response.OutputStream.Close();
-
         }
-
 
 
         /// <summary>
@@ -328,7 +387,7 @@ namespace StreamerBrowser
         /// <param name="e"></param>
         private void ButtonAddToBookmark_Click(object sender, RoutedEventArgs e)
         {
-            if (BrowserWindow.Browser.CoreWebView2!=null)
+            if (BrowserWindow.Browser.CoreWebView2 != null)
             {
                 bookMarkItems.Add(new BookMarkItem()
                 {
@@ -336,8 +395,8 @@ namespace StreamerBrowser
                     FaviconUrl = BrowserWindow.Browser.CoreWebView2.FaviconUri,
                     PageTitle = BrowserWindow.Browser.CoreWebView2.DocumentTitle,
                     isUpdating = false
-                }); 
-                
+                });
+
 
             }
         }
@@ -368,46 +427,112 @@ namespace StreamerBrowser
                 BrowserWindow.Height = xy[1];
                 MoveBrowserWindowUnderMenuWindow();
             }
-            catch 
+            catch
             {
-            }   
+            }
         }
+
+        /// <summary>
+        /// Sends a 404 Not Found response to the client.
+        /// </summary>
+        /// <param name="context">The HttpListenerContext to send the response to.</param>
         private void ReturnError(HttpListenerContext context)
         {
+
+            //応答ステータス コードを 404 Not Found に設定します。
             var response = context.Response as HttpListenerResponse;
             response.StatusCode = (Int32)(HttpStatusCode.NotFound);
+
+            //コンテンツのエンコーディングを UTF8 に設定する
             response.ContentEncoding = Encoding.UTF8;
+
+            //コンテンツ タイプを text/html に設定します
             response.ContentType = "text/html";
-            var ErrorMessage = "<html><body><h1>404 Not Found</h1></body></html>";
+
+            //エラー メッセージを含む文字列を作成する
+            var ErrorMessage = "<html><body>404 Not Found</body></html>";
+
+            //エラー メッセージ文字列をバイトに変換する
             var ErrorBytes = System.Text.Encoding.UTF8.GetBytes(ErrorMessage);
+
+            //コンテンツの長さをエラー メッセージのバイトの長さに設定します。
             response.ContentLength64 = ErrorBytes.Length;
+
+            //エラーメッセージバイトを応答出力ストリームに書き込みます
             response.OutputStream.Write(ErrorBytes, 0, ErrorBytes.Length);
+
+            //応答出力ストリームを閉じる
+            response.OutputStream.Close();
         }
 
+
+        /// <summary>
+        /// リクエストに基づいてブラウザ ウィンドウのぼかしを切り替えます。
+        /// </summary>
+
+        //このコードは URL リクエストを解析し、値を使用してぼかしフラグを切り替えます。
+        //次に、ぼかしフラグのステータスを示すメッセージを含む応答を送信します。
         private void ToggleBlur(HttpListenerContext context)
         {
+            //Get the absolute path of the request
             var request = context.Request.Url.AbsolutePath;
+            //Split the request into chunks
             var requestChunk = request.Split('/');
+            //Declare a boolean flag to store the blur status
             bool? BlurFlag = null;
-            if (requestChunk.Count()>2)
+            //If the request has more than 2 chunks
+            if (requestChunk.Count() > 2)
             {
+                //Declare a variable to store the parsed value
                 var num = 0;
+                //Try to parse the value from the request
                 if (Int32.TryParse(requestChunk[2], out num))
                 {
-                    if (num == 0) BlurFlag = true; else BlurFlag = false; 
+                    //If the value is 0, set the blur flag to true
+                    if (num == 0) BlurFlag = true;
+                    //Otherwise, set the blur flag to false
+                    else BlurFlag = false;
                 }
             }
+            //ぼかしフラグを切り替えます
             BrowserWindow.ToggleBlur(BlurFlag);
+            //応答オブジェクトを取得する
             var response = context.Response as HttpListenerResponse;
+            //応答ステータス コードを OK に設定します
             response.StatusCode = (Int32)(HttpStatusCode.OK);
+            //応答エンコーディングを UTF8 に設定します
             response.ContentEncoding = Encoding.UTF8;
+            //応答のコンテンツ タイプを text/html に設定します
             response.ContentType = "text/html";
-            var ErrorMessage = $"<html><body><h1>Blur Changed {BlurFlag}</h1></body></html>";
+            //ぼかしフラグのステータスを示すメッセージを作成する
+            var ErrorMessage = $"<html><body><H1>Blur Changed {BlurFlag}</H1></body></html>";
+            //Convert the message to bytes
             var ErrorBytes = System.Text.Encoding.UTF8.GetBytes(ErrorMessage);
+            //Set the response content length to the length of the message
             response.ContentLength64 = ErrorBytes.Length;
+            //メッセージを応答出力ストリームに書き込みます
             response.OutputStream.Write(ErrorBytes, 0, ErrorBytes.Length);
         }
 
+        private void MenuWindow_Activated(object sender, EventArgs e)
+        {
+            if (BrowserWindow != null)
+            {
+                BrowserWindow.Topmost = true;
+            }
+            if (bookMarkSwitch != null)
+            {
+                bookMarkSwitch.Topmost = true;
+            }
+            if (BrowserWindow != null)
+            {
+                BrowserWindow.Topmost = false;
+            }
+            if (bookMarkSwitch != null)
+            {
+                bookMarkSwitch.Topmost = false;
+            }
+        }
     }
 
 

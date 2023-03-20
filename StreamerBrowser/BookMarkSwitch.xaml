@@ -7,7 +7,8 @@
         xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         WindowStyle="None"
-        ResizeMode="NoResize"
+        ResizeMode="NoResize" Icon="/res/img/face.png"
+        Activated="Window_Activated"
         Title="BookMarkSwitch" Height="450" Width="320">
     <Grid>
         <Grid.RowDefinitions>

@@ -104,5 +104,17 @@ namespace StreamerBrowser
             }
             return newBookmarkItem;
         }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            if (this.Owner == null) return;
+            try
+            {
+                this.Owner.Activate();
+            }
+            catch (Exception ex)
+            {
+            }
+        }
     }
 }

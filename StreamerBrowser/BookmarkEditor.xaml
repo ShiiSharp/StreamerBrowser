@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wv="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         xmlns:local="clr-namespace:StreamerBrowser" xmlns:wv1="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        mc:Ignorable="d"
+        mc:Ignorable="d" Icon="/res/img/face.png"
         Title="BookmarkEditor" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
